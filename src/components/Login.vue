@@ -1,7 +1,7 @@
 <template>
   <div class="login_container">
     <div class="login_box">
-      <el-form ref="loginForm" :model="loginForm" :rules="rules" label-width="80px" class="login_form">
+      <el-form ref="loginForm" :model="loginForm" :rules="rules" class="login_form">
         <el-form-item class="mt" prop="username">
           <el-input v-model="loginForm.username" prefix-icon="iconfont icon-user"></el-input>
         </el-form-item>
@@ -83,7 +83,6 @@
 
       .login_form {
         padding: 20px;
-
         .mt {
           margin-top: 80px;
         }
