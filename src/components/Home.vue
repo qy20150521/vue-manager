@@ -8,7 +8,9 @@
       <el-aside :width="isCollapse?'60px':'200px'">
         <div class="collapse_btn" @click="toggleCollapse">|||</div>
         <el-menu
+          ref="menu"
           router
+          @open="getMenuIndex"
           unique-opened
           background-color="#373D41"
           text-color="#fff"
@@ -22,7 +24,8 @@
               <span class="ml">{{ item.authName }}</span>
             </template>
             <el-menu-item :index="'/'+value.path" v-for="value in item.children"
-                          :key="value.id" class="bgc" @click="getActiveIndex('/'+value.path)">
+                          :key="value.id" class="bgc"
+                          @click="getActiveIndex('/'+value.path,item.authName,value.authName)">
               <i class="el-icon-menu"></i>
               <span>{{ value.authName }}</span>
             </el-menu-item>
@@ -30,6 +33,8 @@
         </el-menu>
       </el-aside>
       <el-main>
+        <!--  面包屑导航  -->
+        <Breadcrumb :authname="authname" v-if="activeIndex"></Breadcrumb>
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -37,6 +42,9 @@
 </template>
 
 <script>
+  //  导入公共的组件
+  import Breadcrumb from './subComponents/Breadcrumb.vue'
+
   export default {
     name: 'Home',
     data() {
@@ -50,8 +58,16 @@
           145: 'iconfont icon-baobiao'
         },
         isCollapse: false,
-        activeIndex: ''
+        activeIndex: '',
+        authname: {
+          itemAuthname: '',
+          subItemAuthname: ''
+        },
+        menuIndex:0
       }
+    },
+    components: {
+      Breadcrumb
     },
     methods: {
       async getMenuData() {
@@ -64,14 +80,31 @@
         this.isCollapse = !this.isCollapse
       },
       //  控制当前的二级菜单高亮显示
-      getActiveIndex(i) {
+      getActiveIndex(i, text1, text2) {
+        this.authname.itemAuthname = text1
+        this.authname.subItemAuthname = text2
+        window.sessionStorage.setItem('authname', JSON.stringify(this.authname))
         this.activeIndex = i
         window.sessionStorage.setItem('activeIndex', i)
+      },
+      // 监听点击一级菜单获取对应的index值
+      getMenuIndex(index) {
+          this.menuIndex = index
       }
     },
     created() {
       this.getMenuData()
       this.activeIndex = window.sessionStorage.getItem('activeIndex')
+      this.authname = JSON.parse(window.sessionStorage.getItem('authname')) || {}
+    },
+    watch: {
+      $route(newPath) {
+        if (newPath.path === '/welcome') {
+          this.$refs.menu.close(this.menuIndex)
+          this.activeIndex = ''
+          window.sessionStorage.setItem('activeIndex', '')
+        }
+      }
     }
   }
 </script>
