@@ -3,6 +3,7 @@
     <el-header>
       <img src="../assets/images/logo.png" alt="" width="60">
       <span>电商后台管理系统</span>
+      <el-button type="info" class="logout" @click="logout">退出</el-button>
     </el-header>
     <el-container>
       <el-aside :width="isCollapse?'60px':'200px'">
@@ -90,6 +91,13 @@
       // 监听点击一级菜单获取对应的index值
       getMenuIndex(index) {
           this.menuIndex = index
+      },
+      //  退出
+      logout() {
+          window.sessionStorage.removeItem('token')
+          window.sessionStorage.removeItem('activeIndex')
+          window.sessionStorage.removeItem('authname')
+          this.$router.push('/login')
       }
     },
     created() {
@@ -114,7 +122,10 @@
     background-color: #333744;
     padding: 0;
     line-height: 60px;
-
+    .logout{
+      float: right;
+      margin: 10px;
+    }
     img {
       vertical-align: middle;
     }
