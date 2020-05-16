@@ -7,7 +7,9 @@ import './assets/css/global.less'
 //  导入字体图标
 import './assets/fonts/iconfont.css'
 import axios from 'axios'
-
+//  导入表格插件
+import ZkTable from 'vue-table-with-tree-grid'
+Vue.use(ZkTable)
 //  配置请求基准url
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
 //  添加到vue原型上

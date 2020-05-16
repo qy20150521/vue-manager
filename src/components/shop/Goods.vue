@@ -44,7 +44,7 @@
         </el-pagination>
       </div>
     </el-card>
-    <!-- 修改用商品信息的弹出框 -->
+    <!-- 修改商品信息的弹出框 -->
     <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%" @close="closeEditGoods" ref="editForm">
       <el-form :model="editGoodsData" :rules="editGoodsRules" ref="editForm" label-width="100px">
         <el-form-item label="商品名称"  prop="goods_name">

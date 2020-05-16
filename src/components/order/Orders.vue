@@ -24,7 +24,6 @@
 <!--        <el-table-column prop="" label="操作"></el-table-column>-->
       </el-table>
       <div class="block">
-        <span class="demonstration">完整功能</span>
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
