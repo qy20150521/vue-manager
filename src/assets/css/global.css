@@ -25,4 +25,8 @@ body,
 .el-main {
   background-color: #eaedf1;
 }
+.el-cascader__dropdown {
+  height: 200px;
+  overflow-y: auto;
+}
 /*# sourceMappingURL=global.css.map */
