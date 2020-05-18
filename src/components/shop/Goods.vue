@@ -10,7 +10,7 @@
         </el-col>
         <!--  添加按钮  -->
         <el-col :span="3">
-          <el-button type="primary" @click="dialogVisible = true">添加商品</el-button>
+          <el-button type="primary" @click="goAdd">添加商品</el-button>
         </el-col>
       </el-row>
       <!-- 表格  -->
@@ -107,6 +107,10 @@
         if (res.meta.status !== 200) return this.$message.error('获取商品列表失败')
         this.goodsList = res.data.goods
         this.total = res.data.total
+      },
+      //  跳转到添加商品页面
+      goAdd() {
+        this.$router.push('/goods/add')
       },
       // 监听pagesize改变事件
       handleSizeChange(pagesize) {

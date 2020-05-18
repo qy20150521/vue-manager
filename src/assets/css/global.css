@@ -29,4 +29,10 @@ body,
   height: 200px;
   overflow-y: auto;
 }
+.el-step__title {
+  font-size: 14px;
+}
+.el-step__title.is-process {
+  font-weight: normal;
+}
 /*# sourceMappingURL=global.css.map */

@@ -106,11 +106,16 @@
       this.authname = JSON.parse(window.sessionStorage.getItem('authname')) || {}
     },
     watch: {
+      //  监听路由
       $route(newPath) {
         if (newPath.path === '/welcome') {
           this.$refs.menu.close(this.menuIndex)
           this.activeIndex = ''
           window.sessionStorage.setItem('activeIndex', '')
+        }
+        if (newPath.path === '/goods/add') {
+          this.authname.subItemAuthname = '添加商品'
+          window.sessionStorage.setItem('authname', JSON.stringify(this.authname))
         }
       }
     }
