@@ -40,13 +40,46 @@
                 @change="handleChange"></el-cascader>
             </el-form-item>
           </el-tab-pane>
-          <el-tab-pane label="商品参数" name="1">配置管理</el-tab-pane>
-          <el-tab-pane label="商品属性" name="2">角色管理</el-tab-pane>
-          <el-tab-pane label="商品图片" name="3">定时任务补偿</el-tab-pane>
-          <el-tab-pane label="商品内容" name="4">定时任务补偿</el-tab-pane>
+          <el-tab-pane label="商品参数" name="1">
+            <el-form-item :label="item.attr_name" v-for="item in manyList" :key="item.attr_id">
+              <!-- 多选框组 -->
+              <el-checkbox-group v-model="item.attr_vals">
+                <el-checkbox v-for="item1 in item.attr_vals" :label="item1" border :key="item1"></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="商品属性" name="2">
+            <el-form-item :label="item.attr_name" v-for="item in onlyList" :key="item.attr_id">
+              <el-input v-model="item.attr_vals"></el-input>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="商品图片" name="3">
+            <!-- 上传图片功能 -->
+            <el-upload
+              class="upload-demo"
+              action="http://127.0.0.1:8888/api/private/v1/upload/"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :headers="headerObj"
+              :on-success="handleSuccess"
+              list-type="picture">
+              <el-button size="small" type="primary">点击上传</el-button>
+            </el-upload>
+          </el-tab-pane>
+          <el-tab-pane label="商品内容" name="4">
+            <!--富文本组件面板-->
+            <quill-editor v-model="formData.goods_introduce" />
+            <el-button type="primary"  @click="addGoods" class="add">添加商品</el-button>
+          </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="50%">
+      <img :src="imgUrl" alt="" width="100%">
+    </el-dialog>
   </div>
 </template>
 
@@ -57,14 +90,17 @@
       return {
         //  正在进行的步骤的index
         activeIndex: 0,
-        activeName:'0',
+        activeName: '0',
         //  表单数据
         formData: {
-          goods_price: 0,
-          goods_number: 0,
-          goods_weight: 0,
+          goods_price: 1,
+          goods_number: 1,
+          goods_weight: 1,
           // 定义级联选择器选中的值, 必须是数组
-          goods_cat:[]
+          goods_cat: [],
+          //  上传的图片列表
+          pics: [],
+          attrs: []
         },
         //  表单校验规则
         formRules: {
@@ -91,14 +127,41 @@
           value: 'cat_id'
         },
         // 级联选择器的数据源
-        options: []
+        options: [],
+        //  商品参数数据
+        manyList: [],
+        //  商品属性数据
+        onlyList: [],
+        // 上传图片的请求头
+        headerObj: {
+          Authorization: window.sessionStorage.getItem('token')
+        },
+        //  控制dialog的显示
+        dialogVisible: false,
+        //  图片的路径
+        imgUrl: ''
       }
     },
     methods: {
       // 监听tabs的click事件
-      clickTab() {
+      async clickTab() {
         this.activeIndex = this.activeName
+        if (this.activeName === '1') {
+          //  获取商品参数数据
+          const { data: res } = await this.$http.get(`categories/${this.cartId}/attributes`, { params: { sel: 'many' } })
+          if (res.meta.status !== 200) return
+          res.data.forEach(v => {
+            v.attr_vals = v.attr_vals.split(',')
+          })
+          this.manyList = res.data
+        } else if (this.activeName === '2') {
+          //  获取商品属性数据
+          const { data: res } = await this.$http.get(`categories/${this.cartId}/attributes`, { params: { sel: 'only' } })
+          if (res.meta.status !== 200) return
+          this.onlyList = res.data
+        }
       },
+      //  切换标签之前的钩子
       beforeLeaveTabs(newActiveName, oldActiveName) {
         if (oldActiveName === '0' && this.formData.goods_cat.length !== 3) {
           //  防止多次调用
@@ -118,10 +181,57 @@
         const { data: res } = await this.$http.get('categories')
         if (res.meta.status !== 200) return this.$message.error('获取父级名称失败')
         this.options = res.data
+      },
+      //  点击图片的事件
+      handlePreview(file) {
+        this.imgUrl = file.response.data.url
+        this.dialogVisible = true
+      },
+      //  删除图片的事件
+      handleRemove(file) {
+        const filePath = file.response.data.url
+        const i = this.formData.pics.findIndex(v => v.pic === filePath)
+        this.formData.pics.splice(i, 1)
+      },
+      // 图片上传之后成功的钩子函数
+      handleSuccess(res) {
+        const picObj = { pic:res.data.url }
+        this.formData.pics.push(picObj)
+      },
+      //  添加商品
+      addGoods() {
+        this.$refs.form.validate(async valid => {
+          if (!valid) return
+          //  添加动态参数
+          this.manyList.forEach(v => {
+            const obj = {
+              attr_id: v.attr_id,
+              attr_value: v.attr_vals.join(',')
+            }
+            this.formData.attrs.push(obj)
+          })
+          // 添加静态参数
+          this.onlyList.forEach(v => {
+            const obj = {
+              attr_id: v.attr_id,
+              attr_value: v.attr_vals.join(',')
+            }
+            this.formData.attrs.push(obj)
+          })
+          this.formData.goods_cat = this.formData.goods_cat.join(',')
+          const { data:res } = await this.$http.post('goods', this.formData)
+          if (res.meta.status !== 200) return this.$message.error('添加商品失败')
+          this.$message.success('添加商品成功')
+        })
       }
     },
     created() {
       this.getOptions()
+    },
+    computed: {
+      cartId() {
+        return this.formData.goods_cat[this.formData.goods_cat.length - 1] || null
+      }
     }
   }
 </script>
@@ -138,5 +248,9 @@
   .el-cascader {
     display: block;
     width: fit-content;
+  }
+
+  .add{
+    margin-top: 20px;
   }
 </style>

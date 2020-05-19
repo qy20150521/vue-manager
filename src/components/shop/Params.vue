@@ -32,8 +32,10 @@
               <el-table-column label="#" type="index"></el-table-column>
               <el-table-column prop="attr_name" label="参数名称"></el-table-column>
               <el-table-column label="操作">
-                <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
-                <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+                <template #default="{ row }">
+                  <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
+                  <el-button type="danger" icon="el-icon-delete" size="mini" @click="remove(row)">删除</el-button>
+                </template>
               </el-table-column>
             </el-table>
           </el-tab-pane>
@@ -58,8 +60,10 @@
               <el-table-column label="#" type="index"></el-table-column>
               <el-table-column prop="attr_name" label="参数名称"></el-table-column>
               <el-table-column label="操作">
-                <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
-                <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+                <template #default="{ row }">
+                  <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
+                  <el-button type="danger" icon="el-icon-delete" size="mini" @click="remove(row)">删除</el-button>
+                </template>
               </el-table-column>
             </el-table>
           </el-tab-pane>
@@ -121,6 +125,10 @@
       // 点击显示input组件
       showInput(row) {
         row.inputVisible = true
+        this.$nextTick(_ => {
+          //  自动聚焦
+          this.$refs.saveTagInput.$refs.input.focus()
+        })
       },
       // 展开列中的tag标签失焦的事件
       async handleInputConfirm(row) {
@@ -150,6 +158,14 @@
           attr_vals: row.attr_vals.splice(i, 1).join(',')
         })
         if (res.meta.status !== 200) return this.$message.error('删除失败')
+        this.$message.success('删除成功')
+      },
+      //  删除商品参数
+      async remove(row) {
+        const { data:res } = await this.$http.delete(`categories/${this.cateKeysArr[2]}/attributes/${row.attr_id}`)
+        console.log(res)
+        if (res.meta.status !== 200) return this.$message.error('删除失败')
+        this.handleChange()
         this.$message.success('删除成功')
       }
     },
