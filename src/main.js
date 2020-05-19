@@ -16,7 +16,6 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 Vue.use(ZkTable)
-
 Vue.use(VueQuillEditor)
 //  配置请求基准url
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'

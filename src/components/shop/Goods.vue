@@ -132,6 +132,7 @@
         if (confirmRes !== 'confirm') return this.$message.info('取消了删除')
         const { data: res } = await this.$http.delete(`goods/${id}`)
         if (res.meta.status !== 200) return this.$message.error('删除失败')
+        this.getGoodsList()
         this.$message.success(res.meta.msg)
       },
       //  显示编辑商品的弹出框
